@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    int deviceCount = 0;
+    /*int deviceCount = 0;
     int cudaDevice = 0;
     char cudaDeviceName [100];
 
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
     if (a) delete a;
     if (b) delete b;
-    if (c) delete c;
+    if (c) delete c;*/
 
     QBoxLayout* phbxLayout0 = new QBoxLayout(QBoxLayout::LeftToRight);
         QPushButton *loadButt = new QPushButton("Load");
@@ -236,13 +236,16 @@ int main(int argc, char *argv[])
         QObject::connect(pchkShowLAC, SIGNAL(stateChanged(const int)), &dc, SLOT(set_LAC(const int)));
         QObject::connect(pchkShowMAC, SIGNAL(stateChanged(const int)), &dc, SLOT(set_MAC(const int)));
         QObject::connect(pchkShowHAC, SIGNAL(stateChanged(const int)), &dc, SLOT(set_HAC(const int)));
+
     QObject::connect(avgButt, SIGNAL(clicked()), &dc, SLOT(apply_AVG()));
     QObject::connect(lfButt, SIGNAL(clicked()), &dc, SLOT(apply_LF()));
     QObject::connect(mfButt, SIGNAL(clicked()), &dc, SLOT(apply_MF()));
     QObject::connect(hfButt, SIGNAL(clicked()), &dc, SLOT(apply_HF()));
+
     QObject::connect(bGradientButt, SIGNAL(clicked()), &gs, SLOT(apply_gradient()));
     QObject::connect(nGradientButt, SIGNAL(clicked()), &gs, SLOT(apply_nGradient()));
         QObject::connect(ptxtNGradientRadius, SIGNAL(textChanged(const QString&)), &gs, SLOT(update_gradius(const QString&)));
+
     QObject::connect(gvfMagnitudeButt, SIGNAL(clicked()), &gs, SLOT(apply_GVF()));
         QObject::connect(ptxtGVFmu0, SIGNAL(textChanged(const QString &)), &gs, SLOT(update_mu0(const QString &)));
         QObject::connect(ptxtGVFiter0, SIGNAL(textChanged(const QString &)), &gs, SLOT(update_iter0(const QString &)));
@@ -306,9 +309,17 @@ int main(int argc, char *argv[])
     wgt.resize(256, 100);
     wgt.setLayout(pbxLayout);
     wgt.show();
-    wgt.move(1540, 20);
+    wgt.move(1400, 20);
     originalLabel.move(0,0);
     filteredLabel.move(0,100);
 
+    int cudaDevice = 0;
+    char cudaDeviceName [100];
+
+    cuInit(0);
+    cuDeviceGet(&cudaDevice, 0);
+    cuDeviceGetName(cudaDeviceName, 100, cudaDevice);
+
+    wgt.setWindowTitle(QString("ImageEditor - ")+QString(cudaDeviceName));
     return app.exec();
 }

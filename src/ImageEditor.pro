@@ -116,4 +116,3 @@ else {
     cuda.dependency_type = TYPE_C
     QMAKE_EXTRA_COMPILERS += cuda
 }
-
