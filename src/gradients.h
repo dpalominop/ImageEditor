@@ -1,7 +1,6 @@
 #ifndef GRADIENTS_H
 #define GRADIENTS_H
 
-#include <QObject>
 #include <QImage>
 #include <QString>
 #include <cmath>

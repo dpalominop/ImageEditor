@@ -42,7 +42,11 @@ HEADERS += \
     bisegmentationgraph.h \
     myqlineedit.h \
     my_user_types.h \
-    test.h
+    test.h \
+    fouriertransform.h \
+    fogeffect.h \
+    cuda_methods.h \
+    colortransform.h
 
 # Source files
 SOURCES += \
@@ -57,12 +61,24 @@ SOURCES += \
     segmentationgraph.cpp \
     segmentationlevelset.cpp \
     bisegmentationgraph.cpp \
-    myqlineedit.cpp
+    myqlineedit.cpp \
+    fouriertransform.cpp \
+    fogeffect.cpp \
+    colortransform.cpp
 
-#DISTFILES += \
-#    test.cu
+DISTFILES += \
+    test.cu \
+    fouriertransform.cu \
+    gradients.cu \
+    fogeffect.cu \
+    colortransform.cu
 
-CUDA_SOURCES += test.cu
+CUDA_SOURCES += \
+    test.cu \
+    colortransform.cu \
+    fouriertransform.cu \
+    gradients.cu \
+    fogeffect.cu
 
 # This makes the .cu files appear in your project
 OTHER_FILES +=

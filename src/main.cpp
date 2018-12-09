@@ -21,6 +21,7 @@
 #include "snake.h"
 #include "segmentationgraph.h"
 #include "bisegmentationgraph.h"
+#include "colortransform.h"
 #include "myqlineedit.h"
 
 #include "test.h"
@@ -42,37 +43,6 @@ void printArray(const float* a, const unsigned int n) {
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-
-    /*int deviceCount = 0;
-    int cudaDevice = 0;
-    char cudaDeviceName [100];
-
-    unsigned int N = 50;
-    float *a, *b, *c;
-
-    cuInit(0);
-    cuDeviceGetCount(&deviceCount);
-    cuDeviceGet(&cudaDevice, 0);
-    cuDeviceGetName(cudaDeviceName, 100, cudaDevice);
-    qDebug() << "Number of devices: " << deviceCount;
-    qDebug() << "Device name:" << cudaDeviceName;
-
-    a = new float [N];    b = new float [N];    c = new float [N];
-    for (unsigned int ii = 0; ii < N; ++ii) {
-        a[ii] = qrand();
-        b[ii] = qrand();
-    }
-
-    // This is the function call in which the kernel is called
-    vectorAddition(a, b, c, N);
-
-    qDebug() << "input a:"; printArray(a, N);
-    qDebug() << "input b:"; printArray(b, N);
-    qDebug() << "output c:"; printArray(c, N);
-
-    if (a) delete a;
-    if (b) delete b;
-    if (c) delete c;*/
 
     QBoxLayout* phbxLayout0 = new QBoxLayout(QBoxLayout::LeftToRight);
         QPushButton *loadButt = new QPushButton("Load");
@@ -182,6 +152,10 @@ int main(int argc, char *argv[])
         phbxLayout12->addWidget(ptxtbiSegGraphMinSize);
         phbxLayout12->addWidget(pcbxbiSegGraphSource);
 
+    QBoxLayout* phbxLayout13 = new QBoxLayout(QBoxLayout::LeftToRight);
+        QPushButton *yuvButt = new QPushButton("YUV");
+        phbxLayout2->addWidget(yuvButt);
+
     QProgressBar * ppbrProgress = new QProgressBar();
     ppbrProgress->setMaximum(100);
     ppbrProgress->setMinimum(0);
@@ -195,6 +169,7 @@ int main(int argc, char *argv[])
     pbxLayout->addLayout(phbxLayout1);
     pbxLayout->addLayout(phbxLayout2);
     pbxLayout->addLayout(phbxLayout3);
+    pbxLayout->addLayout(phbxLayout13);
     pbxLayout->addLayout(phbxLayout4);
     pbxLayout->addLayout(phbxLayout5);
     pbxLayout->addLayout(phbxLayout6);
@@ -219,6 +194,7 @@ int main(int argc, char *argv[])
     snake snk(&originalImage, &filteredImage);
     segmentationGraph sg(&originalImage, &filteredImage);
     biSegmentationGraph bsg(&originalImage, &filteredImage);
+    ColorTransform coltrans(&originalImage, &filteredImage);
     //segmentationLevelSet sls(&originalImage, &filteredImage);
 
     QObject::connect(loadButt, SIGNAL(clicked()), &ii, SLOT(load()));
@@ -229,6 +205,9 @@ int main(int argc, char *argv[])
     QObject::connect(cannyButt, SIGNAL(clicked()), &cnn, SLOT(apply_canny()));
         QObject::connect(ptxtCannyLowerThresh, SIGNAL(textChanged(const QString &)), &cnn, SLOT(updateLowerThreshold(const QString &)));
         QObject::connect(ptxtCannyUpperThresh, SIGNAL(textChanged(const QString &)), &cnn, SLOT(updateUpperThreshold(const QString &)));
+
+    QObject::connect(yuvButt, SIGNAL(clicked()), &coltrans, SLOT(convertToYUV()));
+
     QObject::connect(heButt, SIGNAL(clicked()), &hs, SLOT(apply_histogramEqualization()));
     QObject::connect(aheButt, SIGNAL(clicked()), &hs, SLOT(apply_histogramAdaptiveEqualization()));
     QObject::connect(dctButt, SIGNAL(clicked()), &dc, SLOT(apply_dctidct()));
@@ -265,6 +244,7 @@ int main(int argc, char *argv[])
         QObject::connect(pcbxbiSegGraphSource, SIGNAL(currentIndexChanged(const int)), &bsg, SLOT(set_source(const int)));
 
     QObject::connect(&cnn, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
+    QObject::connect(&coltrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&hs, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&dc, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&gs, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
@@ -274,6 +254,7 @@ int main(int argc, char *argv[])
     QObject::connect(&bsg, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
 
     QObject::connect(&cnn, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
+    QObject::connect(&coltrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&hs, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&dc, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&gs, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
@@ -297,6 +278,7 @@ int main(int argc, char *argv[])
     QObject::connect(ptxtbiSegGraphMinSize, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
 
     QObject::connect(&cnn, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
+    QObject::connect(&coltrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&hs, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&dc, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&gs, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
