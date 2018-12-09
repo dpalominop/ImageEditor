@@ -4,7 +4,10 @@
 #include <QImage>
 #include <QString>
 #include <cmath>
+
+#include "cuda_methods.h"
 #include "my_user_types.h"
+
 
 class gradients : public QObject
 {

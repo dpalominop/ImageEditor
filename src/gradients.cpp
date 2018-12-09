@@ -12,6 +12,22 @@ static const signed int Gym[3][3] = {
     { 1, 2, 1},
 };
 
+static int Gx[25] = {
+    2, 2, 4, 2, 2,
+    1, 1, 2, 1, 1,
+    2, 0, 0, 0, 0,
+    -1, -1, -2, -1, -1,
+    -2, -2, -4, -2, -2
+};
+static int Gy[25] = {
+    2, 1, 0, -1, -2,
+    2, 1, 0, -1, -2,
+    4, 2, 0, -2, -4,
+    2, 1, 0, -1, -2,
+    2, 1, 0, -1, -2
+};
+
+
 gradients::gradients(QImage *const src, QImage *const dst, QObject *parent) :  QObject(parent)
 {
     srcImage = src;
@@ -27,53 +43,35 @@ void gradients::apply_gradient()
 {
     emit print_progress(0);
     emit print_message(QString("applying gradient..."));
-    const int w = srcImage->width();
-    const int h = srcImage->height();
-    const int sz = w*h;
+    unsigned int w = srcImage->width();
+    unsigned int h = srcImage->height();
+    unsigned int sz = w*h;
+    unsigned int nBytes = sizeof(unsigned char) * sz;
     *dstImage = QImage(w, h, QImage::Format_RGB32);
 
-    rawArray2D<unsigned char> img(h, w);
+    unsigned char *src_h = (unsigned char *)malloc(nBytes);
+    unsigned char *dst_h = (unsigned char *)malloc(nBytes);
 
     for(int y = 0; y < h; ++y)
         for(int x = 0; x < w; ++x)
         {
             const QRgb pix = srcImage->pixel(x, y);
             const int luma32 = 0.299 * qRed(pix) + 0.587 * qGreen(pix) + 0.114 * qBlue(pix);
-            img(y, x) = luma32 > 255 ? 255 : luma32 < 0 ? 0 : luma32;
+            src_h[y*w + x] = luma32 > 255 ? 255 : luma32 < 0 ? 0 : luma32;
         }
 
     emit print_progress(20);
 
-    rawArray2D<float> temp(h, w);
-
-    // applying sobel mask
-    for (int y = 0; y < h; ++y)
-        for (int x = 0; x < w; ++x)
-        {
-            int dx[3], dy[3];
-            dx[0] = -(x>0);
-            dx[1] = 0;
-            dx[2] = (x<(w-1));
-            dy[0] = -(y>0);
-            dy[1] = 0;
-            dy[2] = (y<(h-1));
-            int Gx = 0, Gy = 0;
-            for (int i = 0; i < 3; ++i)
-                for (int j = 0; j < 3; ++j)
-                {
-                    Gx += img(y+dy[i], x+dx[j]) * Gxm[i][j];
-                    Gy += img(y+dy[i], x+dx[j]) * Gym[i][j];
-                }
-            temp(y, x) = sqrt(Gx*Gx + Gy*Gy);
-        }
+    setSobelKernel(Gx, Gy);
+    sobelFilter(src_h, dst_h, w, h, w, 0.04f);
 
     emit print_progress(60);
 
-    float min = temp[0];
+    float min = dst_h[0];
     float max = min;
     for(int i = 1; i < sz; ++i)
     {
-        const float val = temp[i];
+        const float val = dst_h[i];
         max = val > max ? val : max;
         min = val < min ? val : min;
     }
@@ -86,7 +84,7 @@ void gradients::apply_gradient()
     for (int y = 0; y < h; ++y)
         for (int x = 0; x < w; ++x)
         {
-            const float val = temp(y, x);
+            const float val = dst_h[x + y*w];
             const unsigned char level = (unsigned char)(255*(val - min)/range);
             QRgb pix = qRgb(level, level, level);
             dstImage->setPixel(x, y, pix);
@@ -98,7 +96,8 @@ void gradients::apply_gradient()
     emit print_progress(100);
     emit print_message(QString("applying gradient...finished"));
 
-    return;
+    free(src_h);
+    free(dst_h);
 }
 
 void gradients::apply_nGradient()
