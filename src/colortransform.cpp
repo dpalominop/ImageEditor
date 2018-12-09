@@ -39,12 +39,22 @@ void ColorTransform::convertToYUV()
     // convert rgb to yuv
     rgb2yuv(src_r, src_g, src_b, dst_y, dst_cb, dst_cr, w*h);
 
+    int* channel;
+
+    if(show_Y){
+        channel = dst_y;
+    }else if (show_Cb) {
+        channel = dst_cb;
+    }else if (show_Cr) {
+        channel = dst_cr;
+    }
+
     // transform image using yuv vectors
     for(int y = 0; y < h; ++y)
         for(int x = 0; x < w; ++x)
         {
             QRgb pix = srcImage->pixel(x, y);
-            const int d_y = dst_cr[x + w*y];
+            const int d_y = channel[x + w*y];
 
             pix = qRgb(d_y, d_y, d_y);
             dstImage->setPixel(x, y, pix);
@@ -61,5 +71,50 @@ void ColorTransform::convertToYUV()
     emit image_ready();
     emit print_message(QString("applying convertion to YUV...finished"));
 
+    return;
+}
+
+void ColorTransform::setY(const int state)
+{
+    if (state == Qt::Checked)
+    {
+        emit print_message(QString("will display Y channel"));
+        show_Y = 1;
+    }
+    else
+    {
+        emit print_message(QString("won't display Y channel"));
+        show_Y = 0;
+    }
+    return;
+}
+
+void ColorTransform::setCb(const int state)
+{
+    if (state == Qt::Checked)
+    {
+        emit print_message(QString("will display Cb channel"));
+        show_Cb = 1;
+    }
+    else
+    {
+        emit print_message(QString("won't display Cb channel"));
+        show_Cb = 0;
+    }
+    return;
+}
+
+void ColorTransform::setCr(const int state)
+{
+    if (state == Qt::Checked)
+    {
+        emit print_message(QString("will display Cr channel"));
+        show_Cr = 1;
+    }
+    else
+    {
+        emit print_message(QString("won't display Cr channel"));
+        show_Cr = 0;
+    }
     return;
 }

@@ -12,6 +12,8 @@
 #include <QComboBox>
 #include <QProgressBar>
 #include <QDebug>
+#include <QGroupBox>
+#include <QButtonGroup>
 #include "canny.h"
 #include "dct.h"
 #include "extrafilters.h"
@@ -154,7 +156,25 @@ int main(int argc, char *argv[])
 
     QBoxLayout* phbxLayout13 = new QBoxLayout(QBoxLayout::LeftToRight);
         QPushButton *yuvButt = new QPushButton("YUV");
-        phbxLayout2->addWidget(yuvButt);
+        QGroupBox *groupBox = new QGroupBox;
+        QButtonGroup *buttonGroup = new QButtonGroup;
+        QHBoxLayout *vbox = new QHBoxLayout;
+        QCheckBox* pchkY = new QCheckBox("Y");
+        QCheckBox* pchkCb = new QCheckBox("Cb");
+        QCheckBox* pchkCr = new QCheckBox("Cr");
+        pchkY->setChecked(true);
+        pchkCb->setChecked(false);
+        pchkCr->setChecked(false);
+        buttonGroup->addButton(pchkY);
+        buttonGroup->addButton(pchkCb);
+        buttonGroup->addButton(pchkCr);
+        buttonGroup->setExclusive(true);
+        phbxLayout13->addWidget(yuvButt);
+        vbox->addWidget(pchkY);
+        vbox->addWidget(pchkCb);
+        vbox->addWidget(pchkCr);
+        groupBox->setLayout(vbox);
+        phbxLayout13->addWidget(groupBox);
 
     QProgressBar * ppbrProgress = new QProgressBar();
     ppbrProgress->setMaximum(100);
@@ -207,6 +227,9 @@ int main(int argc, char *argv[])
         QObject::connect(ptxtCannyUpperThresh, SIGNAL(textChanged(const QString &)), &cnn, SLOT(updateUpperThreshold(const QString &)));
 
     QObject::connect(yuvButt, SIGNAL(clicked()), &coltrans, SLOT(convertToYUV()));
+        QObject::connect(pchkY, SIGNAL(stateChanged(const int)), &coltrans, SLOT(setY(const int)));
+        QObject::connect(pchkCb, SIGNAL(stateChanged(const int)), &coltrans, SLOT(setCb(const int)));
+        QObject::connect(pchkCr, SIGNAL(stateChanged(const int)), &coltrans, SLOT(setCr(const int)));
 
     QObject::connect(heButt, SIGNAL(clicked()), &hs, SLOT(apply_histogramEqualization()));
     QObject::connect(aheButt, SIGNAL(clicked()), &hs, SLOT(apply_histogramAdaptiveEqualization()));
