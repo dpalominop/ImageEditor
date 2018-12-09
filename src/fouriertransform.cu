@@ -8,9 +8,6 @@
 #include <helper_cuda.h>
 #include <helper_functions.h>
 
-#include "colorstate.h"
-
-
 void img2fft(int *src,int *dst, int w, int h){
     return;
 }

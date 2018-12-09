@@ -24,6 +24,8 @@
 #include "segmentationgraph.h"
 #include "bisegmentationgraph.h"
 #include "colortransform.h"
+#include "fouriertransform.h"
+#include "fogeffect.h"
 #include "myqlineedit.h"
 
 #include "test.h"
@@ -155,6 +157,12 @@ int main(int argc, char *argv[])
         phbxLayout12->addWidget(pcbxbiSegGraphSource);
 
     QBoxLayout* phbxLayout13 = new QBoxLayout(QBoxLayout::LeftToRight);
+        QPushButton *fogButt = new QPushButton("Fog Effect");
+        phbxLayout13->addWidget(fogButt);
+    QBoxLayout* phbxLayout14 = new QBoxLayout(QBoxLayout::LeftToRight);
+        QPushButton *gradButt = new QPushButton("Gadient");
+        phbxLayout14->addWidget(gradButt);
+    QBoxLayout* phbxLayout15 = new QBoxLayout(QBoxLayout::LeftToRight);
         QPushButton *yuvButt = new QPushButton("YUV");
         QGroupBox *groupBox = new QGroupBox;
         QButtonGroup *buttonGroup = new QButtonGroup;
@@ -169,12 +177,15 @@ int main(int argc, char *argv[])
         buttonGroup->addButton(pchkCb);
         buttonGroup->addButton(pchkCr);
         buttonGroup->setExclusive(true);
-        phbxLayout13->addWidget(yuvButt);
+        phbxLayout15->addWidget(yuvButt);
         vbox->addWidget(pchkY);
         vbox->addWidget(pchkCb);
         vbox->addWidget(pchkCr);
         groupBox->setLayout(vbox);
-        phbxLayout13->addWidget(groupBox);
+        phbxLayout15->addWidget(groupBox);
+    QBoxLayout* phbxLayout16 = new QBoxLayout(QBoxLayout::LeftToRight);
+        QPushButton *fftButt = new QPushButton("FFT");
+        phbxLayout16->addWidget(fftButt);
 
     QProgressBar * ppbrProgress = new QProgressBar();
     ppbrProgress->setMaximum(100);
@@ -189,7 +200,6 @@ int main(int argc, char *argv[])
     pbxLayout->addLayout(phbxLayout1);
     pbxLayout->addLayout(phbxLayout2);
     pbxLayout->addLayout(phbxLayout3);
-    pbxLayout->addLayout(phbxLayout13);
     pbxLayout->addLayout(phbxLayout4);
     pbxLayout->addLayout(phbxLayout5);
     pbxLayout->addLayout(phbxLayout6);
@@ -199,6 +209,10 @@ int main(int argc, char *argv[])
     pbxLayout->addLayout(phbxLayout10);
     pbxLayout->addLayout(phbxLayout11);
     pbxLayout->addLayout(phbxLayout12);
+    pbxLayout->addLayout(phbxLayout13);
+    pbxLayout->addLayout(phbxLayout14);
+    pbxLayout->addLayout(phbxLayout15);
+    pbxLayout->addLayout(phbxLayout16);
     pbxLayout->addWidget(ppbrProgress);
     pbxLayout->addWidget(ptxtInfo);
 
@@ -214,7 +228,10 @@ int main(int argc, char *argv[])
     snake snk(&originalImage, &filteredImage);
     segmentationGraph sg(&originalImage, &filteredImage);
     biSegmentationGraph bsg(&originalImage, &filteredImage);
+    FogEffect fogeff(&originalImage, &filteredImage);
+    gradients gradtrans(&originalImage, &filteredImage);
     ColorTransform coltrans(&originalImage, &filteredImage);
+    FourierTransform foutrans(&originalImage, &filteredImage);
     //segmentationLevelSet sls(&originalImage, &filteredImage);
 
     QObject::connect(loadButt, SIGNAL(clicked()), &ii, SLOT(load()));
@@ -225,12 +242,6 @@ int main(int argc, char *argv[])
     QObject::connect(cannyButt, SIGNAL(clicked()), &cnn, SLOT(apply_canny()));
         QObject::connect(ptxtCannyLowerThresh, SIGNAL(textChanged(const QString &)), &cnn, SLOT(updateLowerThreshold(const QString &)));
         QObject::connect(ptxtCannyUpperThresh, SIGNAL(textChanged(const QString &)), &cnn, SLOT(updateUpperThreshold(const QString &)));
-
-    QObject::connect(yuvButt, SIGNAL(clicked()), &coltrans, SLOT(convertToYUV()));
-        QObject::connect(pchkY, SIGNAL(stateChanged(const int)), &coltrans, SLOT(setY(const int)));
-        QObject::connect(pchkCb, SIGNAL(stateChanged(const int)), &coltrans, SLOT(setCb(const int)));
-        QObject::connect(pchkCr, SIGNAL(stateChanged(const int)), &coltrans, SLOT(setCr(const int)));
-
     QObject::connect(heButt, SIGNAL(clicked()), &hs, SLOT(apply_histogramEqualization()));
     QObject::connect(aheButt, SIGNAL(clicked()), &hs, SLOT(apply_histogramAdaptiveEqualization()));
     QObject::connect(dctButt, SIGNAL(clicked()), &dc, SLOT(apply_dctidct()));
@@ -266,8 +277,15 @@ int main(int argc, char *argv[])
         QObject::connect(ptxtbiSegGraphMinSize, SIGNAL(textChanged(const QString &)), &bsg, SLOT(update_minSegSize(const QString &)));
         QObject::connect(pcbxbiSegGraphSource, SIGNAL(currentIndexChanged(const int)), &bsg, SLOT(set_source(const int)));
 
+    QObject::connect(gradButt, SIGNAL(clicked()), &gradtrans, SLOT(apply_gradient()));
+    QObject::connect(fogButt, SIGNAL(clicked()), &fogeff, SLOT(calcFogEffect()));
+    QObject::connect(yuvButt, SIGNAL(clicked()), &coltrans, SLOT(convertToYUV()));
+        QObject::connect(pchkY, SIGNAL(stateChanged(const int)), &coltrans, SLOT(setY(const int)));
+        QObject::connect(pchkCb, SIGNAL(stateChanged(const int)), &coltrans, SLOT(setCb(const int)));
+        QObject::connect(pchkCr, SIGNAL(stateChanged(const int)), &coltrans, SLOT(setCr(const int)));
+    QObject::connect(fftButt, SIGNAL(clicked()), &foutrans, SLOT(calcFFT()));
+
     QObject::connect(&cnn, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
-    QObject::connect(&coltrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&hs, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&dc, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&gs, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
@@ -275,9 +293,12 @@ int main(int argc, char *argv[])
     QObject::connect(&snk, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&sg, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&bsg, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
+    QObject::connect(&fogeff, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
+    QObject::connect(&gradtrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
+    QObject::connect(&coltrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
+    QObject::connect(&foutrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
 
     QObject::connect(&cnn, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
-    QObject::connect(&coltrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&hs, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&dc, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&gs, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
@@ -299,9 +320,12 @@ int main(int argc, char *argv[])
     QObject::connect(ptxtSegGraphSigma, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(ptxtbiSegGraphLevel, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(ptxtbiSegGraphMinSize, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
+    QObject::connect(&fogeff, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
+    QObject::connect(&gradtrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
+    QObject::connect(&coltrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
+    QObject::connect(&foutrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
 
     QObject::connect(&cnn, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
-    QObject::connect(&coltrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&hs, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&dc, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&gs, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
@@ -309,6 +333,10 @@ int main(int argc, char *argv[])
     QObject::connect(&snk, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&sg, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&bsg, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
+    QObject::connect(&fogeff, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
+    QObject::connect(&gradtrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
+    QObject::connect(&coltrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
+    QObject::connect(&foutrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
 
     QWidget wgt;
     wgt.resize(256, 100);

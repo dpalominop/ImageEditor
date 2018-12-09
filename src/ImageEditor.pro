@@ -71,14 +71,16 @@ DISTFILES += \
     fouriertransform.cu \
     gradients.cu \
     fogeffect.cu \
-    colortransform.cu
+    colortransform.cu \
+    denoising.cu
 
 CUDA_SOURCES += \
     test.cu \
     colortransform.cu \
     fouriertransform.cu \
     gradients.cu \
-    fogeffect.cu
+    fogeffect.cu \
+    denoising.cu
 
 # This makes the .cu files appear in your project
 OTHER_FILES +=
