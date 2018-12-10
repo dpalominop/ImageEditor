@@ -26,6 +26,8 @@
 #include "colortransform.h"
 #include "fouriertransform.h"
 #include "fogeffect.h"
+#include "graytransform.h"
+#include "threshold.h"
 #include "myqlineedit.h"
 
 #include "test.h"
@@ -156,11 +158,19 @@ int main(int argc, char *argv[])
         phbxLayout12->addWidget(ptxtbiSegGraphMinSize);
         phbxLayout12->addWidget(pcbxbiSegGraphSource);
 
+    QBoxLayout* phbxLayout17 = new QBoxLayout(QBoxLayout::LeftToRight);
+        QPushButton *grayButt = new QPushButton("Gray Format");
+        phbxLayout17->addWidget(grayButt);
+    QBoxLayout* phbxLayout18 = new QBoxLayout(QBoxLayout::LeftToRight);
+        QPushButton *binaryButt = new QPushButton("Threshold");
+        myQLineEdit* ptxtBinaryRadius = new myQLineEdit("Binary Umbral", "100");
+        phbxLayout18->addWidget(binaryButt);
+        phbxLayout18->addWidget(ptxtBinaryRadius);
     QBoxLayout* phbxLayout13 = new QBoxLayout(QBoxLayout::LeftToRight);
         QPushButton *fogButt = new QPushButton("Fog Effect");
         phbxLayout13->addWidget(fogButt);
     QBoxLayout* phbxLayout14 = new QBoxLayout(QBoxLayout::LeftToRight);
-        QPushButton *gradButt = new QPushButton("Gadient");
+        QPushButton *gradButt = new QPushButton("Gradient");
         phbxLayout14->addWidget(gradButt);
     QBoxLayout* phbxLayout15 = new QBoxLayout(QBoxLayout::LeftToRight);
         QPushButton *yuvButt = new QPushButton("YUV");
@@ -209,6 +219,8 @@ int main(int argc, char *argv[])
     pbxLayout->addLayout(phbxLayout10);
     pbxLayout->addLayout(phbxLayout11);
     pbxLayout->addLayout(phbxLayout12);
+    pbxLayout->addLayout(phbxLayout17);
+    pbxLayout->addLayout(phbxLayout18);
     pbxLayout->addLayout(phbxLayout13);
     pbxLayout->addLayout(phbxLayout14);
     pbxLayout->addLayout(phbxLayout15);
@@ -228,6 +240,8 @@ int main(int argc, char *argv[])
     snake snk(&originalImage, &filteredImage);
     segmentationGraph sg(&originalImage, &filteredImage);
     biSegmentationGraph bsg(&originalImage, &filteredImage);
+    GrayTransform graytrans(&originalImage, &filteredImage);
+    Threshold bintrans(&originalImage, &filteredImage);
     FogEffect fogeff(&originalImage, &filteredImage);
     gradients gradtrans(&originalImage, &filteredImage);
     ColorTransform coltrans(&originalImage, &filteredImage);
@@ -277,6 +291,9 @@ int main(int argc, char *argv[])
         QObject::connect(ptxtbiSegGraphMinSize, SIGNAL(textChanged(const QString &)), &bsg, SLOT(update_minSegSize(const QString &)));
         QObject::connect(pcbxbiSegGraphSource, SIGNAL(currentIndexChanged(const int)), &bsg, SLOT(set_source(const int)));
 
+    QObject::connect(grayButt, SIGNAL(clicked()), &graytrans, SLOT(convertToGray()));
+    QObject::connect(binaryButt, SIGNAL(clicked()), &bintrans, SLOT(convertToBinary()));
+        QObject::connect(ptxtBinaryRadius, SIGNAL(textChanged(const QString&)), &bintrans, SLOT(setUmbral(const QString&)));
     QObject::connect(gradButt, SIGNAL(clicked()), &gradtrans, SLOT(apply_gradient()));
     QObject::connect(fogButt, SIGNAL(clicked()), &fogeff, SLOT(calcFogEffect()));
     QObject::connect(yuvButt, SIGNAL(clicked()), &coltrans, SLOT(convertToYUV()));
@@ -293,6 +310,8 @@ int main(int argc, char *argv[])
     QObject::connect(&snk, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&sg, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&bsg, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
+    QObject::connect(&graytrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
+    QObject::connect(&bintrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&fogeff, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&gradtrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&coltrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
@@ -320,6 +339,9 @@ int main(int argc, char *argv[])
     QObject::connect(ptxtSegGraphSigma, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(ptxtbiSegGraphLevel, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(ptxtbiSegGraphMinSize, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
+    QObject::connect(&graytrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
+    QObject::connect(&bintrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
+    QObject::connect(ptxtBinaryRadius, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&fogeff, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&gradtrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&coltrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
@@ -333,6 +355,8 @@ int main(int argc, char *argv[])
     QObject::connect(&snk, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&sg, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&bsg, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
+    QObject::connect(&graytrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
+    QObject::connect(&bintrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&fogeff, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&gradtrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&coltrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));

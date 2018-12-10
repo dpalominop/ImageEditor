@@ -46,7 +46,9 @@ HEADERS += \
     fouriertransform.h \
     fogeffect.h \
     cuda_methods.h \
-    colortransform.h
+    colortransform.h \
+    threshold.h \
+    graytransform.h
 
 # Source files
 SOURCES += \
@@ -64,7 +66,9 @@ SOURCES += \
     myqlineedit.cpp \
     fouriertransform.cpp \
     fogeffect.cpp \
-    colortransform.cpp
+    colortransform.cpp \
+    threshold.cpp \
+    graytransform.cpp
 
 DISTFILES += \
     test.cu \
@@ -73,7 +77,9 @@ DISTFILES += \
     fogeffect.cu \
     colortransform.cu \
     denoising.cu \
-    sobelfilter.cu
+    sobelfilter.cu \
+    graytransform.cu \
+    treshold.cu
 
 CUDA_SOURCES += \
     test.cu \
@@ -82,7 +88,9 @@ CUDA_SOURCES += \
     gradients.cu \
     fogeffect.cu \
     denoising.cu \
-    sobelfilter.cu
+    sobelfilter.cu \
+    graytransform.cu \
+    treshold.cu
 
 # This makes the .cu files appear in your project
 OTHER_FILES +=
