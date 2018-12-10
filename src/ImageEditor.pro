@@ -105,7 +105,7 @@ QMAKE_LIBDIR += $$CUDA_DIR/lib/$$SYSTEM_NAME \
                 $$CUDA_SDK/common/lib/$$SYSTEM_NAME
 
 # Add the necessary libraries
-LIBS += -lcuda -lcudart
+LIBS += -lcuda -lcudart -lcufft
 
 # The following library conflicts with something in Cuda
 QMAKE_LFLAGS_RELEASE += /NODEFAULTLIB:msvcrt.lib
