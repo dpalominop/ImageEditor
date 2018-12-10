@@ -10,7 +10,7 @@ FourierTransform::FourierTransform(QImage *const src, QImage *const dst, QObject
 void FourierTransform::calcFFT()
 {
     emit print_progress(0);
-    emit print_message(QString("applying gradient..."));
+    emit print_message(QString("applying FFT..."));
     unsigned int w = srcImage->width();
     unsigned int h = srcImage->height();
     unsigned int sz = w*h;
@@ -46,7 +46,7 @@ void FourierTransform::calcFFT()
 
     emit image_ready();
     emit print_progress(100);
-    emit print_message(QString("applying gradient...finished"));
+    emit print_message(QString("applying FFT...finished"));
 
     free(src_h);
     free(dst_h);
