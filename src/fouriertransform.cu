@@ -10,59 +10,79 @@
 #include <cufft.h>
 #include <stdlib.h>
 
+__global__ void normalize(cufftComplex* src, unsigned char* dst, int w, int h)
+{
+    int ii = blockDim.x * blockIdx.x + threadIdx.x;
+    if (ii < h*w)
+    {
+        const int luma32 = sqrt((src[ii].x)*(src[ii].x)+(src[ii].y)*(src[ii].y))/(1.0f*w);
+        dst[ii] = luma32 > 255 ? 255 : luma32 < 0 ? 0 : luma32;
+    }
+}
+
+__global__ void swapRows(cufftComplex* src, int w, int h)
+{
+    cufftComplex *tmp;
+    tmp = (cufftComplex *)malloc(sizeof(cufftComplex)*w/2);
+
+    int ii = blockDim.x * blockIdx.x + threadIdx.x;
+    if (ii < h/2)
+    {
+        cufftComplex* i_start = src+ii*w;
+        cufftComplex* i_end = src + (ii+h/2)*w + w/2;
+        memcpy(tmp, i_start, sizeof(cufftComplex)*w/2);
+        memcpy(i_start, i_end, sizeof(cufftComplex)*w/2);
+        memcpy(i_end, tmp, sizeof(cufftComplex)*w/2);
+    }else if (ii < h) {
+        cufftComplex* i_start = src+(ii-h/2)*w +w/2;
+        cufftComplex* i_end = src + ii*w;
+        memcpy(tmp, i_start, sizeof(cufftComplex)*w/2);
+        memcpy(i_start, i_end, sizeof(cufftComplex)*w/2);
+        memcpy(i_end, tmp, sizeof(cufftComplex)*w/2);
+    }
+
+    free(tmp);
+}
+
+__global__ void unnormalize(unsigned char* src, cufftComplex* dst, int w, int h)
+{
+    int ii = blockDim.x * blockIdx.x + threadIdx.x;
+    if (ii < h*w)
+    {
+        dst[ii].x = (float)src[ii];
+        dst[ii].y = 0;
+    }
+}
+
 void img2fft(unsigned char *src, unsigned char *dst, int w, int h){
     cufftHandle plan;
-    cufftComplex *src_d, *src_h;
-    cufftComplex *dst_d, *dst_h;
-
-    src_h = (cufftComplex *) malloc(sizeof(cufftComplex)*w*h);
-    dst_h = (cufftComplex *) malloc(sizeof(cufftComplex)*w*h);
-
-    for(int y=0; y<h; y++){
-        for(int x=0; x<w; x++){
-            src_h[y*w +x].x = (float)(src[y*w +x]);
-            src_h[y*w +x].y = 0;
-        }
-    }
+    cufftComplex *src_d;
+    cufftComplex *dst_d;
+    unsigned char* uchar_d;
 
     checkCudaErrors(cudaMalloc((void**)&src_d, sizeof(cufftComplex)*w*h));
     checkCudaErrors(cudaMalloc((void**)&dst_d, sizeof(cufftComplex)*w*h));
-    checkCudaErrors(cudaMemcpy(src_d, src_h, h*w *sizeof(cufftComplex), cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMalloc((void**)&uchar_d, sizeof(unsigned char)*w*h));
+
+    checkCudaErrors(cudaMemcpy(uchar_d, src, h*w *sizeof(unsigned char), cudaMemcpyHostToDevice));
+
+    int threadsPerBlock = 32;
+    int blocksPerGrid   = (h*w + threadsPerBlock - 1) / threadsPerBlock;
+    unnormalize<<<blocksPerGrid,threadsPerBlock>>>(uchar_d, src_d, w, h);
 
     cufftPlan2d(&plan, h, w, CUFFT_C2C);
     cufftExecC2C(plan, src_d, dst_d, CUFFT_FORWARD);
 
-    checkCudaErrors(cudaMemcpy(dst_h, dst_d, h*w *sizeof(cufftComplex), cudaMemcpyDeviceToHost));
+    blocksPerGrid   = (h + threadsPerBlock - 1) / threadsPerBlock;
+    swapRows<<<blocksPerGrid,threadsPerBlock>>>(dst_d, w, h);
 
-    for(int y=0; y<h; y++){
-        for(int x=0; x<w; x++){
-            const int luma32 = sqrt((dst_h[y*w +x].x)*(dst_h[y*w +x].x)+(dst_h[y*w +x].y)*(dst_h[y*w +x].y))/(1.0f*w);
-            dst[y*w +x] = luma32 > 255 ? 255 : luma32 < 0 ? 0 : luma32;
-        }
-    }
+    blocksPerGrid   = (h*w + threadsPerBlock - 1) / threadsPerBlock;
+    normalize<<<blocksPerGrid,threadsPerBlock>>>(dst_d, uchar_d, w, h);
 
-    unsigned char *tmp = (unsigned char *)malloc(sizeof(unsigned char)*w/2);
-
-    for(int i=0; i<h/2; i++){
-        unsigned char* i_start = dst+i*w;
-        unsigned char* i_end = dst + (i+h/2)*w + w/2;
-        memcpy(tmp, i_start, sizeof(unsigned char)*w/2);
-        memcpy(i_start, i_end, sizeof(unsigned char)*w/2);
-        memcpy(i_end, tmp, sizeof(unsigned char)*w/2);
-    }
-
-    for(int i=0; i<h/2; i++){
-        unsigned char* i_start = dst+i*w +w/2;
-        unsigned char* i_end = dst + (i+h/2)*w;
-        memcpy(tmp, i_start, sizeof(unsigned char)*w/2);
-        memcpy(i_start, i_end, sizeof(unsigned char)*w/2);
-        memcpy(i_end, tmp, sizeof(unsigned char)*w/2);
-    }
+    checkCudaErrors(cudaMemcpy(dst, uchar_d, h*w *sizeof(unsigned char), cudaMemcpyDeviceToHost));
 
     cufftDestroy(plan);
     cudaFree(src_d);
     cudaFree(dst_d);
-    free(src_h);
-    free(dst_h);
-    free(tmp);
+    cudaFree(uchar_d);
 }
