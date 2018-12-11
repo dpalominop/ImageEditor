@@ -18,27 +18,46 @@ void histograms::apply_histogramEqualization()
     const int sz = w*h;
     *dstImage = QImage(w, h, QImage::Format_RGB32);
 
-    unsigned int hist[256];
-    unsigned int histDistribution[256];
-    memset(hist, 0, 1024);
+    unsigned int hist_r[256];
+    unsigned int hist_g[256];
+    unsigned int hist_b[256];
+    unsigned int histDistribution_r[256];
+    unsigned int histDistribution_g[256];
+    unsigned int histDistribution_b[256];
+    memset(hist_r, 0, 1024);
+    memset(hist_g, 0, 1024);
+    memset(hist_b, 0, 1024);
+
+    unsigned char *img_r, *img_g, *img_b;
+    img_r = (unsigned char *)malloc(sizeof(unsigned char)*sz);
+    img_g = (unsigned char *)malloc(sizeof(unsigned char)*sz);
+    img_b = (unsigned char *)malloc(sizeof(unsigned char)*sz);
 
     for(int y = 0; y < h; ++y)
         for(int x = 0; x < w; ++x)
         {
             const QRgb pix = srcImage->pixel(x, y);
-            const int luma32 = 0.299 * qRed(pix) + 0.587 * qGreen(pix) + 0.114 * qBlue(pix);
-            const unsigned char luma8 = luma32 > 255 ? 255 : luma32 < 0 ? 0 : luma32;
-
-            // count intensity distribution
-            ++hist[luma8];
+            img_r[y*w+x] = qRed(pix);
+            img_g[y*w+x] = qGreen(pix);
+            img_b[y*w+x] = qBlue(pix);
         }
 
+    histogram256(hist_r, img_r, h*w);
+    histogram256(hist_g, img_g, h*w);
+    histogram256(hist_b, img_b, h*w);
+
     // build a cumulative histogram as LUT
-    unsigned int sum = 0;
+    unsigned int sum_r = 0;
+    unsigned int sum_g = 0;
+    unsigned int sum_b = 0;
     for (int i = 0; i < 256; ++i)
     {
-        sum += hist[i];
-        histDistribution[i] = sum;
+        sum_r += hist_r[i];
+        histDistribution_r[i] = sum_r;
+        sum_g += hist_g[i];
+        histDistribution_g[i] = sum_g;
+        sum_b += hist_b[i];
+        histDistribution_b[i] = sum_b;
     }
 
     // transform image using sum histogram as a LUT (Look Up Table)
@@ -46,12 +65,14 @@ void histograms::apply_histogramEqualization()
         for(int x = 0; x < w; ++x)
         {
             QRgb pix = srcImage->pixel(x, y);
-            const int luma32 = 0.299 * qRed(pix) + 0.587 * qGreen(pix) + 0.114 * qBlue(pix);
-            const unsigned char luma8 = luma32 > 255 ? 255 : luma32 < 0 ? 0 : luma32;
+            //const int luma32 = 0.299 * qRed(pix) + 0.587 * qGreen(pix) + 0.114 * qBlue(pix);
+            //const unsigned char luma8 = luma32 > 255 ? 255 : luma32 < 0 ? 0 : luma32;
 
-            const unsigned char level = (unsigned char)(histDistribution[luma8]*255/sz);
+            const unsigned char level_r = (unsigned char)(histDistribution_r[qRed(pix)]*255/sz);
+            const unsigned char level_g = (unsigned char)(histDistribution_g[qGreen(pix)]*255/sz);
+            const unsigned char level_b = (unsigned char)(histDistribution_b[qBlue(pix)]*255/sz);
 
-            pix = qRgb(level, level, level);
+            pix = qRgb(level_r, level_g, level_b);
             dstImage->setPixel(x, y, pix);
         }
 

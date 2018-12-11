@@ -73,24 +73,24 @@ SOURCES += \
 DISTFILES += \
     test.cu \
     fouriertransform.cu \
-    gradients.cu \
     fogeffect.cu \
     colortransform.cu \
     denoising.cu \
     sobelfilter.cu \
     graytransform.cu \
-    treshold.cu
+    treshold.cu \
+    histograms.cu
 
 CUDA_SOURCES += \
     test.cu \
     colortransform.cu \
     fouriertransform.cu \
-    gradients.cu \
     fogeffect.cu \
     denoising.cu \
     sobelfilter.cu \
     graytransform.cu \
-    treshold.cu
+    treshold.cu \
+    histograms.cu
 
 # This makes the .cu files appear in your project
 OTHER_FILES +=

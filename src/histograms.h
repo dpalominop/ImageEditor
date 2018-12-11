@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QImage>
+#include "cuda_methods.h"
 
 class histograms : public QObject
 {
