@@ -116,6 +116,16 @@ void image_interface::rescaleSrcImage()
     return;
 }
 
+void image_interface::rescaleDstImage()
+{
+    *dstImage = QImage(newWidth, newHeight, QImage::Format_RGB32);
+    uchar *dst = dstImage->bits();
+    imageScaled(srcImage->bits(), srcImage->width(), srcImage->height(), srcImage->bytesPerLine(),
+                dst, dstImage->width(), dstImage->height(), dstImage->bytesPerLine(), 4);
+    updateDstImage();
+    return;
+}
+
 void image_interface::updateSrcImage()
 {
     srcLabel->setPixmap(QPixmap::fromImage(*srcImage));

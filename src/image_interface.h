@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QImage>
 #include <QString>
+#include "cuda_methods.h"
 
 class image_interface : public QObject
 {
@@ -24,6 +25,7 @@ public slots:
     void updateHeight(const QString& h);
     void updateWidth(const QString& w);
     void rescaleSrcImage();
+    void rescaleDstImage();
 private:
     QLabel *srcLabel;
     QLabel *dstLabel;

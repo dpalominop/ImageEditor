@@ -17,5 +17,6 @@ extern "C" void img2fft(unsigned char *src, unsigned char *dst, int w, int h);
 extern "C" void addImage(unsigned char *imgr, unsigned char *imgg, unsigned char *imgb,
                          unsigned char *imgr_k, unsigned char *imgg_k, unsigned char *imgb_k,
                          int w, int h, float index);
+extern "C" void imageScaled(unsigned char *src, int w, int h, int pitch, unsigned char *dst, int nw, int nh, int npitch, int BytesPerPixel);
 
 #endif // CUDA_METHODS_H

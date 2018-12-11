@@ -82,7 +82,8 @@ DISTFILES += \
     graytransform.cu \
     treshold.cu \
     histograms.cu \
-    mergeimages.cu
+    mergeimages.cu \
+    image_interface.cu
 
 CUDA_SOURCES += \
     test.cu \
@@ -94,7 +95,8 @@ CUDA_SOURCES += \
     graytransform.cu \
     treshold.cu \
     histograms.cu \
-    mergeimages.cu
+    mergeimages.cu \
+    image_interface.cu
 
 # This makes the .cu files appear in your project
 OTHER_FILES +=

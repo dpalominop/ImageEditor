@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
 
     QObject::connect(loadButt, SIGNAL(clicked()), &ii, SLOT(load()));
     QObject::connect(copyButt, SIGNAL(clicked()), &ii, SLOT(copy()));
-    QObject::connect(rescaleButt, SIGNAL(clicked()), &ii, SLOT(rescaleSrcImage()));
+    QObject::connect(rescaleButt, SIGNAL(clicked()), &ii, SLOT(rescaleDstImage()));
         QObject::connect(ptxtSrcWidth, SIGNAL(textChanged(const QString &)), &ii, SLOT(updateWidth(const QString &)));
         QObject::connect(ptxtSrcHeight, SIGNAL(textChanged(const QString &)), &ii, SLOT(updateHeight(const QString &)));
     QObject::connect(cannyButt, SIGNAL(clicked()), &cnn, SLOT(apply_canny()));
