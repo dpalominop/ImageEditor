@@ -49,7 +49,8 @@ HEADERS += \
     colortransform.h \
     threshold.h \
     graytransform.h \
-    mergeimages.h
+    mergeimages.h \
+    templatematching.h
 
 # Source files
 SOURCES += \
@@ -70,7 +71,8 @@ SOURCES += \
     colortransform.cpp \
     threshold.cpp \
     graytransform.cpp \
-    mergeimages.cpp
+    mergeimages.cpp \
+    templatematching.cpp
 
 DISTFILES += \
     test.cu \
@@ -83,7 +85,8 @@ DISTFILES += \
     treshold.cu \
     histograms.cu \
     mergeimages.cu \
-    image_interface.cu
+    image_interface.cu \
+    templatematching.cu
 
 CUDA_SOURCES += \
     test.cu \
@@ -96,7 +99,8 @@ CUDA_SOURCES += \
     treshold.cu \
     histograms.cu \
     mergeimages.cu \
-    image_interface.cu
+    image_interface.cu \
+    templatematching.cu
 
 # This makes the .cu files appear in your project
 OTHER_FILES +=

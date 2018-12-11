@@ -29,6 +29,7 @@
 #include "graytransform.h"
 #include "threshold.h"
 #include "mergeimages.h"
+#include "templatematching.h"
 #include "myqlineedit.h"
 
 #include <cuda.h>
@@ -205,6 +206,11 @@ int main(int argc, char *argv[])
     QBoxLayout* phbxLayout16 = new QBoxLayout(QBoxLayout::LeftToRight);
         QPushButton *fftButt = new QPushButton("FFT");
         phbxLayout16->addWidget(fftButt);
+    QBoxLayout* phbxLayout21 = new QBoxLayout(QBoxLayout::LeftToRight);
+        QPushButton *templateButt = new QPushButton("Find Template");
+        QPushButton *tempAddButt = new QPushButton("Load Template");
+        phbxLayout21->addWidget(templateButt);
+        phbxLayout21->addWidget(tempAddButt);
 
     QProgressBar * ppbrProgress = new QProgressBar();
     ppbrProgress->setMaximum(100);
@@ -236,6 +242,7 @@ int main(int argc, char *argv[])
     pbxLayout->addLayout(phbxLayout14);
     pbxLayout->addLayout(phbxLayout15);
     pbxLayout->addLayout(phbxLayout16);
+    pbxLayout->addLayout(phbxLayout21);
     pbxLayout->addWidget(ppbrProgress);
     pbxLayout->addWidget(ptxtInfo);
 
@@ -259,6 +266,7 @@ int main(int argc, char *argv[])
     gradients gradtrans(&originalImage, &filteredImage);
     ColorTransform coltrans(&originalImage, &filteredImage);
     FourierTransform foutrans(&originalImage, &filteredImage);
+    TemplateMatching tempmatch(&originalImage, &filteredImage);
     //segmentationLevelSet sls(&originalImage, &filteredImage);
 
     QObject::connect(loadButt, SIGNAL(clicked()), &ii, SLOT(load()));
@@ -318,6 +326,8 @@ int main(int argc, char *argv[])
         QObject::connect(pchkCb, SIGNAL(stateChanged(const int)), &coltrans, SLOT(setCb(const int)));
         QObject::connect(pchkCr, SIGNAL(stateChanged(const int)), &coltrans, SLOT(setCr(const int)));
     QObject::connect(fftButt, SIGNAL(clicked()), &foutrans, SLOT(calcFFT()));
+    QObject::connect(templateButt, SIGNAL(clicked()), &tempmatch, SLOT(findTemplate()));
+        QObject::connect(tempAddButt, SIGNAL(clicked()), &tempmatch, SLOT(loadTemplate()));
 
     QObject::connect(&cnn, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&hs, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
@@ -335,6 +345,7 @@ int main(int argc, char *argv[])
     QObject::connect(&gradtrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&coltrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&foutrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
+    QObject::connect(&tempmatch, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
 
     QObject::connect(&cnn, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&hs, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
@@ -367,6 +378,7 @@ int main(int argc, char *argv[])
     QObject::connect(&gradtrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&coltrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&foutrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
+    QObject::connect(&tempmatch, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
 
     QObject::connect(&cnn, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&hs, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
@@ -384,6 +396,7 @@ int main(int argc, char *argv[])
     QObject::connect(&gradtrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&coltrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&foutrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
+    QObject::connect(&tempmatch, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
 
     QWidget wgt;
     wgt.resize(256, 100);

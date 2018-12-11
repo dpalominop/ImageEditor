@@ -18,5 +18,6 @@ extern "C" void addImage(unsigned char *imgr, unsigned char *imgg, unsigned char
                          unsigned char *imgr_k, unsigned char *imgg_k, unsigned char *imgb_k,
                          int w, int h, float index);
 extern "C" void imageScaled(unsigned char *src, int w, int h, int pitch, unsigned char *dst, int nw, int nh, int npitch, int BytesPerPixel);
+extern "C" void GetMatch(float *I, float *T, int Iw, int Ih, int Tw, int Th, int *x, int *y);
 
 #endif // CUDA_METHODS_H
