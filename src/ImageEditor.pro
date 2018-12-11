@@ -48,7 +48,8 @@ HEADERS += \
     cuda_methods.h \
     colortransform.h \
     threshold.h \
-    graytransform.h
+    graytransform.h \
+    mergeimages.h
 
 # Source files
 SOURCES += \
@@ -68,7 +69,8 @@ SOURCES += \
     fogeffect.cpp \
     colortransform.cpp \
     threshold.cpp \
-    graytransform.cpp
+    graytransform.cpp \
+    mergeimages.cpp
 
 DISTFILES += \
     test.cu \
@@ -79,7 +81,8 @@ DISTFILES += \
     sobelfilter.cu \
     graytransform.cu \
     treshold.cu \
-    histograms.cu
+    histograms.cu \
+    mergeimages.cu
 
 CUDA_SOURCES += \
     test.cu \
@@ -90,7 +93,8 @@ CUDA_SOURCES += \
     sobelfilter.cu \
     graytransform.cu \
     treshold.cu \
-    histograms.cu
+    histograms.cu \
+    mergeimages.cu
 
 # This makes the .cu files appear in your project
 OTHER_FILES +=

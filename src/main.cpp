@@ -28,9 +28,8 @@
 #include "fogeffect.h"
 #include "graytransform.h"
 #include "threshold.h"
+#include "mergeimages.h"
 #include "myqlineedit.h"
-
-#include "test.h"
 
 #include <cuda.h>
 #include <builtin_types.h>
@@ -166,6 +165,16 @@ int main(int argc, char *argv[])
         myQLineEdit* ptxtBinaryRadius = new myQLineEdit("Binary Umbral", "100");
         phbxLayout18->addWidget(binaryButt);
         phbxLayout18->addWidget(ptxtBinaryRadius);
+    QBoxLayout* phbxLayout19 = new QBoxLayout(QBoxLayout::LeftToRight);
+        QPushButton *histeqButt = new QPushButton("Histogram Equalization (HE)");
+        phbxLayout19->addWidget(histeqButt);
+    QBoxLayout* phbxLayout20 = new QBoxLayout(QBoxLayout::LeftToRight);
+        QPushButton *mergeButt = new QPushButton("Add Images");
+        QPushButton *mergeAddButt = new QPushButton("Load");
+        myQLineEdit *ptxtmergeIndexRadius = new myQLineEdit("Merge Index", "0.5");
+        phbxLayout20->addWidget(mergeButt);
+        phbxLayout20->addWidget(mergeAddButt);
+        phbxLayout20->addWidget(ptxtmergeIndexRadius);
     QBoxLayout* phbxLayout13 = new QBoxLayout(QBoxLayout::LeftToRight);
         QPushButton *fogButt = new QPushButton("Fog Effect");
         phbxLayout13->addWidget(fogButt);
@@ -221,6 +230,8 @@ int main(int argc, char *argv[])
     pbxLayout->addLayout(phbxLayout12);
     pbxLayout->addLayout(phbxLayout17);
     pbxLayout->addLayout(phbxLayout18);
+    pbxLayout->addLayout(phbxLayout19);
+    pbxLayout->addLayout(phbxLayout20);
     pbxLayout->addLayout(phbxLayout13);
     pbxLayout->addLayout(phbxLayout14);
     pbxLayout->addLayout(phbxLayout15);
@@ -242,6 +253,8 @@ int main(int argc, char *argv[])
     biSegmentationGraph bsg(&originalImage, &filteredImage);
     GrayTransform graytrans(&originalImage, &filteredImage);
     Threshold bintrans(&originalImage, &filteredImage);
+    histograms histeq(&originalImage, &filteredImage);
+    MergeImages mergimag(&originalImage, &filteredImage);
     FogEffect fogeff(&originalImage, &filteredImage);
     gradients gradtrans(&originalImage, &filteredImage);
     ColorTransform coltrans(&originalImage, &filteredImage);
@@ -294,6 +307,10 @@ int main(int argc, char *argv[])
     QObject::connect(grayButt, SIGNAL(clicked()), &graytrans, SLOT(convertToGray()));
     QObject::connect(binaryButt, SIGNAL(clicked()), &bintrans, SLOT(convertToBinary()));
         QObject::connect(ptxtBinaryRadius, SIGNAL(textChanged(const QString&)), &bintrans, SLOT(setUmbral(const QString&)));
+    QObject::connect(histeqButt, SIGNAL(clicked()), &histeq, SLOT(apply_histogramEqualization()));
+    QObject::connect(mergeButt, SIGNAL(clicked()), &mergimag, SLOT(mergeImages()));
+        QObject::connect(mergeAddButt, SIGNAL(clicked()), &mergimag, SLOT(loadKernel()));
+        QObject::connect(ptxtmergeIndexRadius, SIGNAL(textChanged(const QString&)), &mergimag, SLOT(setIndex(const QString&)));
     QObject::connect(gradButt, SIGNAL(clicked()), &gradtrans, SLOT(apply_gradient()));
     QObject::connect(fogButt, SIGNAL(clicked()), &fogeff, SLOT(calcFogEffect()));
     QObject::connect(yuvButt, SIGNAL(clicked()), &coltrans, SLOT(convertToYUV()));
@@ -312,6 +329,8 @@ int main(int argc, char *argv[])
     QObject::connect(&bsg, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&graytrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&bintrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
+    QObject::connect(&histeq, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
+    QObject::connect(&mergimag, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&fogeff, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&gradtrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
     QObject::connect(&coltrans, SIGNAL(image_ready()), &ii, SLOT(updateDstImage()));
@@ -341,6 +360,8 @@ int main(int argc, char *argv[])
     QObject::connect(ptxtbiSegGraphMinSize, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&graytrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&bintrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
+    QObject::connect(&histeq, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
+    QObject::connect(&mergimag, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(ptxtBinaryRadius, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&fogeff, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
     QObject::connect(&gradtrans, SIGNAL(print_message(const QString&)), ptxtInfo, SLOT(setText(const QString&)));
@@ -357,6 +378,8 @@ int main(int argc, char *argv[])
     QObject::connect(&bsg, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&graytrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&bintrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
+    QObject::connect(&histeq, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
+    QObject::connect(&mergimag, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&fogeff, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&gradtrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));
     QObject::connect(&coltrans, SIGNAL(print_progress(const int)), ppbrProgress, SLOT(setValue(const int)));

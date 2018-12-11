@@ -14,5 +14,8 @@ extern "C" void sobelFilter(unsigned char *src_h, unsigned char *dst_h,
                             unsigned int width, unsigned int height,
                             unsigned int pitch, float scale);
 extern "C" void img2fft(unsigned char *src, unsigned char *dst, int w, int h);
+extern "C" void addImage(unsigned char *imgr, unsigned char *imgg, unsigned char *imgb,
+                         unsigned char *imgr_k, unsigned char *imgg_k, unsigned char *imgb_k,
+                         int w, int h, float index);
 
 #endif // CUDA_METHODS_H
