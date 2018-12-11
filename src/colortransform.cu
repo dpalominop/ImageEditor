@@ -63,5 +63,4 @@ void rgb2yuv(int *imgr,int *imgg,int *imgb,int *imgy,int *imgcb,int *imgcr, int 
     cudaFree(imgy_cuda);
     cudaFree(imgcb_cuda);
     cudaFree(imgcr_cuda);
-    printf("Printing... rgb2yuvKernel\n");
 }

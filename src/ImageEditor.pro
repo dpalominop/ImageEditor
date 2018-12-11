@@ -30,19 +30,11 @@ OBJECTS_DIR = ./release/obj
 CUDA_OBJECTS_DIR = ./release/cuda
 
 HEADERS += \
-    canny.h \
-    snake.h \
     histograms.h \
     gradients.h \
-    dct.h \
-    extrafilters.h \
     image_interface.h \
-    segmentationgraph.h \
-    segmentationlevelset.h \
-    bisegmentationgraph.h \
     myqlineedit.h \
     my_user_types.h \
-    test.h \
     fouriertransform.h \
     fogeffect.h \
     cuda_methods.h \
@@ -55,16 +47,9 @@ HEADERS += \
 # Source files
 SOURCES += \
     main.cpp \
-    snake.cpp \
-    canny.cpp \
     histograms.cpp \
     gradients.cpp \
-    dct.cpp \
-    extrafilters.cpp \
     image_interface.cpp \
-    segmentationgraph.cpp \
-    segmentationlevelset.cpp \
-    bisegmentationgraph.cpp \
     myqlineedit.cpp \
     fouriertransform.cpp \
     fogeffect.cpp \
@@ -75,11 +60,9 @@ SOURCES += \
     templatematching.cpp
 
 DISTFILES += \
-    test.cu \
     fouriertransform.cu \
     fogeffect.cu \
     colortransform.cu \
-    denoising.cu \
     sobelfilter.cu \
     graytransform.cu \
     treshold.cu \
@@ -89,11 +72,9 @@ DISTFILES += \
     templatematching.cu
 
 CUDA_SOURCES += \
-    test.cu \
     colortransform.cu \
     fouriertransform.cu \
     fogeffect.cu \
-    denoising.cu \
     sobelfilter.cu \
     graytransform.cu \
     treshold.cu \
