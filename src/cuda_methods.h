@@ -2,6 +2,7 @@
 #define CUDA_METHODS_H
 
 extern "C" void rgb2yuv(int *imgr,int *imgg,int *imgb,int *imgy,int *imgcb,int *imgcr, int n);
+extern "C" void yuv2rgb(int *imgy,int *imgcb,int *imgcr, int *imgr,int *imgg,int *imgb, int n);
 extern "C" void rgb2gray(unsigned char *imgr, unsigned char *imgg, unsigned char *imgb, unsigned char *img_gray, int n);
 extern "C" void rgb2binary(unsigned char *imgr, unsigned char *imgg, unsigned char *imgb, unsigned char *img_binary, int n, int umbral);
 extern "C" void histogram256(unsigned int *d_Histogram, void *d_Data, unsigned int byteCount);

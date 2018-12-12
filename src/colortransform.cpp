@@ -39,24 +39,28 @@ void ColorTransform::convertToYUV()
     // convert rgb to yuv
     rgb2yuv(src_r, src_g, src_b, dst_y, dst_cb, dst_cr, w*h);
 
-    int* channel;
-
     if(show_Y){
-        channel = dst_y;
+        memset(dst_cb, 0, sizeof(int)*w*h);
+        memset(dst_cr, 0, sizeof(int)*w*h);
     }else if (show_Cb) {
-        channel = dst_cb;
+        memset(dst_y, 0, sizeof(int)*w*h);
+        memset(dst_cr, 0, sizeof(int)*w*h);
     }else if (show_Cr) {
-        channel = dst_cr;
+        memset(dst_y, 0, sizeof(int)*w*h);
+        memset(dst_cb, 0, sizeof(int)*w*h);
     }
+
+    yuv2rgb(dst_y, dst_cb, dst_cr, src_r, src_g, src_b, w*h);
 
     // transform image using yuv vectors
     for(int y = 0; y < h; ++y)
         for(int x = 0; x < w; ++x)
         {
-            QRgb pix = srcImage->pixel(x, y);
-            const int d_y = channel[x + w*y];
+            const int r = src_r[x + w*y];
+            const int g = src_g[x + w*y];
+            const int b = src_b[x + w*y];
 
-            pix = qRgb(d_y, d_y, d_y);
+            QRgb pix = qRgb(r, g, b);
             dstImage->setPixel(x, y, pix);
         }
 
