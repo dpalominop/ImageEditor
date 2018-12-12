@@ -45,31 +45,6 @@ void image_interface::load()
             bmp.read(img.data(), img.size());
 
             switch (depth) {
-                case 4:
-                {
-                    auto dataSize = ((width/2 + 3) & (~3)) * height;
-                    auto width_ext = ((width/2 + 3) & (~3));
-                    img.resize(dataSize);
-                    bmp.read(img.data(), img.size());
-
-                    QVector<QRgb> colorTable(16); //our grayscale palette
-                    for (int i = 0; i < 256; i+=16)
-                         colorTable[i/16] = qRgb(i, i, i); //build palette
-
-                    QImage qimg(width, height, QImage::Format_Indexed8);
-                    qimg.setColorCount(16);
-                    qimg.setColorTable(colorTable);
-                    srcImage->operator=(qimg);
-
-                    for (auto i=0; i<height; i++){
-                        for(auto j=0; j<width/2; j++){
-                            char value = img[i*width_ext+j];
-                            srcImage->setPixel(j*2, height -1 -i, value >> 4);
-                            srcImage->setPixel(j*2+1, height -1 -i, value & 0x0F);
-                        }
-                    }
-                    break;
-                }
                 case 24:
                 case 32:
                 {
@@ -87,6 +62,11 @@ void image_interface::load()
                             srcImage->setPixel(j, height -1 -i, value);
                         }
                     }
+                    break;
+                }
+                case 4:
+                {
+                    srcImage->load(filename);
                     break;
                 }
             }

@@ -49,15 +49,6 @@ int main(int argc, char *argv[])
         QPushButton *copyButt = new QPushButton("Filtered->Source");
         phbxLayout0->addWidget(loadButt);
         phbxLayout0->addWidget(copyButt);
-
-    QBoxLayout* phbxLayout1 = new QBoxLayout(QBoxLayout::LeftToRight);
-        QPushButton *rescaleButt = new QPushButton("rescale input");
-        myQLineEdit* ptxtSrcWidth = new myQLineEdit("Rescale source image with this width", "640");
-        myQLineEdit* ptxtSrcHeight = new myQLineEdit("Rescale source image with this height", "480");
-        phbxLayout1->addWidget(rescaleButt);
-        phbxLayout1->addWidget(ptxtSrcWidth);
-        phbxLayout1->addWidget(ptxtSrcHeight);
-
     QBoxLayout* phbxLayout2 = new QBoxLayout(QBoxLayout::LeftToRight);
         QPushButton *grayButt = new QPushButton("Gray Format");
         phbxLayout2->addWidget(grayButt);
@@ -70,7 +61,7 @@ int main(int argc, char *argv[])
         QPushButton *histeqButt = new QPushButton("Histogram Equalization (HE)");
         phbxLayout4->addWidget(histeqButt);
     QBoxLayout* phbxLayout5 = new QBoxLayout(QBoxLayout::LeftToRight);
-        QPushButton *mergeButt = new QPushButton("Add Images");
+        QPushButton *mergeButt = new QPushButton("Image Addition");
         QPushButton *mergeAddButt = new QPushButton("Load");
         myQLineEdit *ptxtmergeIndexRadius = new myQLineEdit("Merge Index", "0.5");
         phbxLayout5->addWidget(mergeButt);
@@ -82,6 +73,13 @@ int main(int argc, char *argv[])
     QBoxLayout* phbxLayout7 = new QBoxLayout(QBoxLayout::LeftToRight);
         QPushButton *gradButt = new QPushButton("Gradient");
         phbxLayout7->addWidget(gradButt);
+    QBoxLayout* phbxLayout1 = new QBoxLayout(QBoxLayout::LeftToRight);
+        QPushButton *rescaleButt = new QPushButton("Bilinear Interpolation");
+        myQLineEdit* ptxtSrcWidth = new myQLineEdit("Rescale source image with this width", "640");
+        myQLineEdit* ptxtSrcHeight = new myQLineEdit("Rescale source image with this height", "480");
+        phbxLayout1->addWidget(rescaleButt);
+        phbxLayout1->addWidget(ptxtSrcWidth);
+        phbxLayout1->addWidget(ptxtSrcHeight);
     QBoxLayout* phbxLayout8 = new QBoxLayout(QBoxLayout::LeftToRight);
         QPushButton *yuvButt = new QPushButton("YUV");
         QGroupBox *groupBox = new QGroupBox;
@@ -122,13 +120,13 @@ int main(int argc, char *argv[])
 
     QBoxLayout* pbxLayout = new QBoxLayout(QBoxLayout::TopToBottom);
     pbxLayout->addLayout(phbxLayout0);
-    pbxLayout->addLayout(phbxLayout1);
     pbxLayout->addLayout(phbxLayout2);
     pbxLayout->addLayout(phbxLayout3);
     pbxLayout->addLayout(phbxLayout4);
     pbxLayout->addLayout(phbxLayout5);
     pbxLayout->addLayout(phbxLayout6);
     pbxLayout->addLayout(phbxLayout7);
+    pbxLayout->addLayout(phbxLayout1);
     pbxLayout->addLayout(phbxLayout8);
     pbxLayout->addLayout(phbxLayout9);
     pbxLayout->addLayout(phbxLayout10);
